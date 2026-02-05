@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cupcake Clicker</title>
+    <style>
+        
+        /* --- CSS STYLES --- */
+        
+        /* General Page Layout */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            overflow: hidden; /* Prevents scrollbars on the main window */
+            background-color: #ffebee; /* Light Pink Background */
+            color: #4a4a4a;
+        }
+
+        /* The Game Container - 3 Columns */
+        .game-wrapper {
+            display: flex;
+            height: 100vh;
+            position: relative;
+            z-index: 10; /* Sits above the falling background */
+        }
+
+        /* 1. LEFT COLUMN: Click Area */
+        #click-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 4px solid #f8bbd0;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* The Big Cupcake Button */
+        #cupcake-btn {
+            font-size: 150px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+            text-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        #cupcake-btn:active {
+            transform: scale(0.90);
+        }
+        #cupcake-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 2. MIDDLE COLUMN: Scoreboard */
+        #scoreboard-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-right: 4px solid #f8bbd0;
+            text-align: center;
+        }
+
+        .stat-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box h2 { margin: 0 0 10px 0; color: #d81b60; }
+        .stat-detail { font-size: 1.2rem; margin: 5px 0; }
+        
+        /* Message / Congratulation Popup Area */
+        #message-area {
+            min-height: 60px;
+            width: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            background-color: #ffd740; /* Gold */
+            color: #3e2723;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        /* Help Button */
+        #help-btn {
+            margin-top: auto; /* Pushes to bottom */
+            padding: 10px 20px;
+            background-color: #880e4f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* 3. RIGHT COLUMN: Store & Rewards */
+        #store-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.5);
+            overflow-y: auto; /* Scrollable */
+        }
+
+        .section-header {
+            background: #d81b60;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .store-items { padding: 10px; }
+
+        /* Individual Upgrade Item */
+        .upgrade-card {
+            background: white;
+            border: 2px solid #f48fb1;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrade-card:hover { background-color: #ffebee; }
+        .upgrade-card.disabled { opacity: 0.6; cursor: not-allowed; background-color: #eee; border-color: #ccc; }
+        
+        .upgrade-info h4 { margin: 0; font-size: 1rem; }
+        .upgrade-info p { margin: 2px 0; font-size: 0.8rem; color: #666; }
+        .upgrade-cost { font-weight: bold; color: #d81b60; }
+
+        /* Trophies Grid */
+        #trophy-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px;
+            justify-content: center;
+        }
+        .trophy {
+            width: 50px;
+            height: 50px;
+            background: #ffecb3;
+            border: 2px solid #ffca28;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: help;
+            transition: transform 0.2s;
+        }
+        .trophy:hover { transform: scale(1.2) rotate(10deg); }
+
+        /* Modal (Help Screen) */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            border: 5px solid #880e4f;
+        }
+        .hidden { display: none !important; }
+
+        /* Background Animation (Falling Cupcakes) */
+        .bg-animation {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; /* Let clicks pass through */
+            z-index: 0;
+            opacity: 0.15;
+            /* Using a data URI SVG of a cupcake for the background pattern */
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="20">🧁</text></svg>');
+            background-size: 100px 100px;
+            animation: fall 20s linear infinite;
+        }
+
+        @keyframes fall {
+            from { background-position: 0 0; }
+            to { background-position: 0 500px; }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-animation"></div>
+
+    <div class="game-wrapper">
+        
+        <section id="click-area">
+            <h1>Cupcake Factory</h1>
+            <div id="cupcake-btn" title="Click me!">🧁</div>
+        </section>
+
+        <section id="scoreboard-area">
+            <div class="stat-box">
+                <h2>Scoreboard</h2>
+                <p class="stat-detail">Cupcakes: <span id="display-score" style="font-weight:bold; font-size:1.5em">0</span></p>
+                <p class="stat-detail">Per Click: <span id="display-click-val">1</span></p>
+                <p class="stat-detail">Auto Speed: <span id="display-auto-speed">0</span> sec</p>
+            </div>
+
+            <div id="message-area"></div>
+
+            <button id="help-btn">Help / Instructions</button>
+        </section>
+
+        <section id="store-area">
+            <div class="section-header">Store</div>
+            
+            <div class="store-items">
+                <h3>Ingredients (Increase Click)</h3>
+                <div id="click-upgrades-list"></div>
+
+                <h3>Kitchen Staff (Auto Clickers)</h3>
+                <div id="auto-upgrades-list"></div>
+            </div>
+
+            <div class="section-header" style="margin-top: auto;">Trophies</div>
+            <div id="trophy-container">
+                </div>
+        </section>
+    </div>
+
+    <div id="help-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Are you stupid?</h2>
+            <p>It's a clicker game. You click the big cupcake.</p>
+            <p><strong>Instructions:</strong></p>
+            <ul style="text-align:left;">
+                <li>Click cupcake -> Get currency.</li>
+                <li>Buy Ingredients -> Click gets stronger.</li>
+                <li>Buy Staff -> They click for you automatically.</li>
+            </ul>
+            <button id="close-help-btn" style="padding:10px 20px; background:#d81b60; color:white; border:none; cursor:pointer;">I understand now</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT LOGIC --- */
+
+        // 1. THE MODEL (Game State) [cite: 52]
+        let game = {
+            cupcakes: 0,
+            clickValue: 1,
+            totalClicks: 0,
+            autoDelay: 0, // 0 = off
+            upgradesOwned: {}, // Tracks IDs of bought upgrades
+            achievementsUnlocked: [] // Tracks IDs of unlocked trophies
+        };
+        
+        let autoClickTimer = null; // Variable to hold the interval timer
+
+        // 2. DATA CONFIGURATION
+        
+        // Upgrades: Type 'click' adds to clickValue, Type 'auto' sets auto-click speed
+        const upgrades = [
+            // Click Upgrades (Ingredients) [cite: 34]
+            { id: 'sprinkles', name: 'Sprinkles', type: 'click', baseCost: 50, increase: 1, desc: '+1 per click' },
+            { id: 'cocoa', name: 'Cocoa Powder', type: 'click', baseCost: 200, increase: 5, desc: '+5 per click' },
+            { id: 'cream', name: 'Whipped Cream', type: 'click', baseCost: 500, increase: 10, desc: '+10 per click' },
+            
+            // Auto Upgrades (Staff) [cite: 35]
+            { id: 'eggs', name: 'Eggs (Slow)', type: 'auto', baseCost: 100, delay: 3000, desc: 'Auto-click every 3s' },
+            { id: 'vanilla', name: 'Vanilla Extract (Med)', type: 'auto', baseCost: 1000, delay: 1000, desc: 'Auto-click every 1s' },
+            { id: 'chocolate', name: 'Melted Choco (Fast)', type: 'auto', baseCost: 5000, delay: 100, desc: 'Auto-click every 0.1s' }
+        ];
+
+        // Achievements [cite: 42]
+        const achievements = [
+            { id: 'first_click', title: 'CUPTASTIC', icon: '👆', check: (g) => g.totalClicks >= 1 },
+            { id: 'dough', title: 'Making Some Dough', icon: '🥯', check: (g) => g.cupcakes >= 50 },
+            { id: 'doughtastic', title: 'Dough-tastic', icon: '🍞', check: (g) => g.cupcakes >= 500 },
+            { id: 'drill', title: 'You know the drill', icon: '🔨', check: (g) => g.totalClicks >= 100 },
+            { id: 'cheat1', title: 'Stop Cheating', icon: '🥚', check: (g) => g.upgradesOwned['eggs'] },
+            { id: 'cheat2', title: 'Be Ashamed', icon: '😐', check: (g) => g.upgradesOwned['vanilla'] },
+            { id: 'cheat3', title: 'You will be banned!', icon: '🚫', check: (g) => g.upgradesOwned['chocolate'] },
+            { id: 'oven', title: 'Fresh out of the oven', icon: '✨', check: (g) => g.upgradesOwned['sprinkles'] }
+        ];
+
+        // 3. INITIALIZATION
+        window.addEventListener('load', () => {
+            initStore();
+            updateDisplay();
+            
+            // Event Listeners [cite: 56]
+            document.getElementById('cupcake-btn').addEventListener('click', clickCupcake);
+            document.getElementById('help-btn').addEventListener('click', () => toggleModal(true));
+            document.getElementById('close-help-btn').addEventListener('click', () => toggleModal(false));
+            
+            // Loop for UI updates (enabling/disabling buttons based on current cash)
+            setInterval(updateStoreButtons, 100);
+        });
+
+        // 4. CONTROLLER FUNCTIONS
+
+        function clickCupcake() {
+            game.cupcakes += game.clickValue;
+            game.totalClicks++;
+            checkAchievements();
+            updateDisplay(); // Visual update immediately
+        }
+
+        // Logic to run auto-clickers [cite: 35, 38]
+        function setAutoClicker(delay) {
+            // Stop existing timer
+            if (autoClickTimer) clearInterval(autoClickTimer);
+            
+            game.autoDelay = delay;
+            
+            // Start new timer
+            autoClickTimer = setInterval(() => {
+                // Auto click adds the current click value [cite: 35]
+                game.cupcakes += game.clickValue;
+                checkAchievements();
+                updateDisplay();
+            }, delay);
+        }
+
+        function buyUpgrade(upgradeId) {
+            const upgrade = upgrades.find(u => u.id === upgradeId);
+            const currentCount = game.upgradesOwned[upgradeId] || 0;
+            // Cost calculation: BaseCost * 1.5 ^ count [cite: 36]
+            const cost = Math.ceil(upgrade.baseCost * Math.pow(1.5, currentCount));
+
+            if (game.cupcakes >= cost) {
+                // Deduct cost
+                game.cupcakes -= cost;
+                
+                // Track ownership
+                game.upgradesOwned[upgradeId] = currentCount + 1;
+
+                // Apply Effect
+                if (upgrade.type === 'click') {
+                    game.clickValue += upgrade.increase;
+                } else if (upgrade.type === 'auto') {
+                    // Logic: Replace slower timer with faster one
+                    // Only apply if it's faster than current or if we have no timer
+                    if (game.autoDelay === 0 || upgrade.delay < game.autoDelay) {
+                        setAutoClicker(upgrade.delay);
+                    }
+                }
+
+                // Update UI
+                renderStoreElement(upgrade); // Re-render this button to update price
+                updateDisplay();
+                checkAchievements();
+            }
+        }
+
+        function checkAchievements() {
+            achievements.forEach(ach => {
+                // If not already unlocked AND condition is met
+                if (!game.achievementsUnlocked.includes(ach.id) && ach.check(game)) {
+                    unlockAchievement(ach);
+                }
+            });
+        }
+
+        function unlockAchievement(ach) {
+            game.achievementsUnlocked.push(ach.id);
+            
+            // 1. Add visual icon to trophy case [cite: 43]
+            const trophy = document.createElement('div');
+            trophy.className = 'trophy';
+            trophy.textContent = ach.icon;
+            trophy.title = `${ach.title}`; // Tooltip
+            document.getElementById('trophy-container').appendChild(trophy);
+
+            // 2. Show congratulations message [cite: 44]
+            const msgArea = document.getElementById('message-area');
+            const msgBox = document.createElement('div');
+            msgBox.className = 'message-box';
+            msgBox.textContent = `Unlocked: ${ach.title}!`;
+            
+            msgArea.innerHTML = ''; // Clear old messages
+            msgArea.appendChild(msgBox);
+
+            // 3. Remove message after 3 seconds [cite: 45]
+            setTimeout(() => {
+                if (msgArea.contains(msgBox)) msgArea.removeChild(msgBox);
+            }, 3000);
+        }
+
+        // 5. VIEW FUNCTIONS (DOM Manipulation) [cite: 30]
+
+        function updateDisplay() {
+            // Update Text
+            document.getElementById('display-score').textContent = Math.floor(game.cupcakes).toLocaleString();
+            document.getElementById('display-click-val').textContent = game.clickValue;
+            
+            // Display seconds (convert ms to s)
+            const speed = game.autoDelay > 0 ? (game.autoDelay / 1000) : 0;
+            document.getElementById('display-auto-speed').textContent = speed;
+        }
+
+        function toggleModal(show) {
+            const modal = document.getElementById('help-modal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        // Creates the store HTML elements initially
+        function initStore() {
+            const clickContainer = document.getElementById('click-upgrades-list');
+            const autoContainer = document.getElementById('auto-upgrades-list');
+
+            upgrades.forEach(u => {
+                const wrapper = document.createElement('div');
+                wrapper.id = `upgrade-wrapper-${u.id}`; // wrapper to easily replace content
+                
+                if (u.type === 'click') clickContainer.appendChild(wrapper);
+                else autoContainer.appendChild(wrapper);
+
+                renderStoreElement(u);
+            });
+        }
+
+        // Renders specific upgrade button (called initially and after purchase to update price)
+        function renderStoreElement(u) {
+            const wrapper = document.getElementById(`upgrade-wrapper-${u.id}`);
+            const currentCount = game.upgradesOwned[u.id] || 0;
+            const cost = Math.ceil(u.baseCost * Math.pow(1.5, currentCount)); // [cite: 36]
+
+            wrapper.innerHTML = `
+                <div class="upgrade-card" id="btn-${u.id}" onclick="buyUpgrade('${u.id}')">
+                    <div class="upgrade-info">
+                        <h4>${u.name}</h4>
+                        <p>${u.desc}</p>
+                    </div>
+                    <div class="upgrade-cost">${cost.toLocaleString()} 🧁</div>
+                </div>
+            `;
+        }
+
+        // Checks cost vs wallet and greys out buttons
+        function updateStoreButtons() {
+            upgrades.forEach(u => {
+                const currentCount = game.upgradesOwned[u.id] || 0;
+                const cost = Math.ceil(u.baseCost * Math.pow(1.5, currentCount));
+                const btn = document.getElementById(`btn-${u.id}`);
+                
+                if (game.cupcakes < cost) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.classList.remove('disabled');
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
