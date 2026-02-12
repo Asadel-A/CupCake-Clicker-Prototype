@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Cupcake Clicker</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #ffebee; 
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .game-layout {
+            display: flex; 
+            height: 100vh; 
+        }
+
+        #left-col {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            border-right: 5px solid #f48fb1;
+        }
+
+        #cupcake-btn {
+            font-size: 120px;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        #cupcake-btn:active {
+            transform: scale(0.9);
+        }
+
+        #middle-col {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .score-box {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        #message-box {
+            height: 50px; 
+            color: #d81b60;
+            font-weight: bold;
+        }
+
+        #right-col {
+            flex: 1;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-left: 5px solid #f48fb1;
+            padding: 10px;
+            overflow-y: auto; 
+        }
+
+        .upgrade-btn {
+            background: white;
+            border: 2px solid #ec407a;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 90%;
+        }
+
+        .upgrade-btn:hover {
+            background-color: #fce4ec;
+        }
+
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #ddd;
+            border-color: #999;
+        }
+
+        #trophy-area {
+            display: flex;
+            flex-wrap: wrap; 
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .trophy {
+            font-size: 30px;
+            background-color: gold;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer; 
+            border: 2px solid orange;
+        }
+
+        #help {
+            position: fixed; 
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5); 
+            display: none; 
+            justify-content: center;
+            align-items: center;
+        }
+        #help-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-layout">
+        
+        <section id="left-col">
+            <h1>Cupcake Factory</h1>
+            <div id="cupcake-btn">🧁</div>
+        </section>
+
+        <section id="middle-col">
+            <div class="score-box">
+                <h2>Scoreboard</h2>
+                <p>Cupcakes: <span id="score-text">0</span></p>
+                <p>Cookies per Click: <span id="click-power-text">1</span></p>
+            </div>
+            
+            <div id="message-box"></div> <button id="open-help">Help</button>
+        </section>
+
+        <section id="right-col">
+            <h2>Store</h2>
+            <div id="store-container">
+                </div>
+
+            <h2>Trophies</h2>
+            <div id="trophy-area">
+                </div>
+        </section>
+
+    </div>
+
+    <div id="help">
+        <div id="help-content">
+            <h3>Are you stupid?</h3>
+            <p>Click the cupcake to bake. Buy upgrades to bake faster.</p>
+            <button id="close-help">I understand</button>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            cupcakes: 0,
+            clickValue: 1,
+            totalClicks: 0,
+            autoClickDelay: 0,
+            myUpgrades: [],  
+            myTrophies: []     
+        };
+
+        let autoClickTimer = null; 
+        const shopItems = [
+            { id: 'sprinkles', name: 'Sprinkles (+1 Click)', type: 'click', cost: 50, boost: 1 },
+            { id: 'cocoa', name: 'Cocoa (+5 Click)', type: 'click', cost: 200, boost: 5 },
+            { id: 'cream', name: 'Whipped Cream (+10 Click)', type: 'click', cost: 500, boost: 10 },
+            { id: 'eggs', name: 'Eggs (Auto 3 sec)', type: 'auto', cost: 100, delay: 3000 },
+            { id: 'vanilla', name: 'Vanilla (Auto 1 sec)', type: 'auto', cost: 1000, delay: 1000 },
+            { id: 'chocolate', name: 'Choco (Auto Fast)', type: 'auto', cost: 5000, delay: 100 }
+        ];
+
+        const trophyList = [
+            { id: 'first', text: 'CUPTASTIC: Clicked 1 time', icon: '👆', req: (g) => g.totalClicks >= 1 },
+            { id: 'dough', text: 'Making Dough: 50 Cupcakes', icon: '🥯', req: (g) => g.cupcakes >= 50 },
+            { id: 'cheat', text: 'Stop Cheating: Bought Auto Clicker', icon: '🥚', req: (g) => g.myUpgrades.includes('eggs') },
+            { id: 'oven', text: 'Fresh Oven: Bought Sprinkles', icon: '✨', req: (g) => g.myUpgrades.includes('sprinkles') }
+        ];
+
+        window.addEventListener('load', function() {
+            createStoreButtons();
+            document.getElementById('cupcake-btn').addEventListener('click', clickCupcake);
+            document.getElementById('open-help').addEventListener('click', showHelp);
+            document.getElementById('close-help').addEventListener('click', hideHelp);
+            setInterval(updateGameLoop, 100); 
+        });
+
+        function clickCupcake() {
+            gameState.cupcakes += gameState.clickValue; 
+            gameState.totalClicks += 1;                 
+            updateScreen();
+        }
+
+        function buyItem(item) {
+            if (gameState.cupcakes >= item.cost) {
+                gameState.cupcakes -= item.cost;
+                item.cost = Math.ceil(item.cost * 1.5);
+                
+                if (!gameState.myUpgrades.includes(item.id)) {
+                    gameState.myUpgrades.push(item.id);
+                }
+
+                if (item.type === 'click') {
+                    gameState.clickValue += item.boost;
+                } else if (item.type === 'auto') {
+                    startAutoClicker(item.delay);
+                }
+
+                createStoreButtons(); 
+            }
+        }
+
+        function startAutoClicker(delayTime) {
+            if (autoClickTimer) {
+                clearInterval(autoClickTimer);
+            }
+
+            gameState.autoClickDelay = delayTime;
+
+            autoClickTimer = setInterval(function() {
+                gameState.cupcakes += gameState.clickValue;
+                updateScreen();
+            }, delayTime);
+        }
+
+        function updateScreen() {
+            document.getElementById('score-text').innerText = gameState.cupcakes;
+            document.getElementById('click-power-text').innerText = gameState.clickValue;
+        }
+
+        function updateGameLoop() {
+            checkTrophies();
+            checkButtons();
+        }
+
+        function checkButtons() {
+            shopItems.forEach(item => {
+                let btn = document.getElementById('btn-' + item.id);
+                if (gameState.cupcakes < item.cost) {
+                    btn.classList.add('disabled'); 
+                } else {
+                    btn.classList.remove('disabled'); 
+                }
+            });
+        }
+
+        function createStoreButtons() {
+            const container = document.getElementById('store-container');
+            container.innerHTML = ''; 
+            shopItems.forEach(item => {
+                let btn = document.createElement('div');
+                btn.className = 'upgrade-btn';
+                btn.id = 'btn-' + item.id;
+                btn.innerHTML = `<b>${item.name}</b><br>Cost: ${item.cost}`;
+                btn.addEventListener('click', function() {
+                    buyItem(item);
+                });
+
+                container.appendChild(btn);
+            });
+        }
+
+        function checkTrophies() {
+            trophyList.forEach(trophy => {
+                if (!gameState.myTrophies.includes(trophy.id) && trophy.req(gameState)) {
+                    unlockTrophy(trophy);
+                }
+            });
+        }
+
+        function unlockTrophy(trophy) {
+            gameState.myTrophies.push(trophy.id);
+            let icon = document.createElement('div');
+            icon.className = 'trophy';
+            icon.innerText = trophy.icon;
+            icon.title = trophy.text; 
+            document.getElementById('trophy-area').appendChild(icon);
+            let msg = document.getElementById('message-box');
+            msg.innerText = "Unlocked: " + trophy.text;
+            
+            setTimeout(function() {
+                msg.innerText = "";
+            }, 3000);
+        }
+
+        // Help Modal Logic
+        function showHelp() {
+            document.getElementById('help').style.display = 'flex';
+        }
+        function hideHelp() {
+            document.getElementById('help').style.display = 'none';
+        }
+
+    </script>
+</body>
+</html>
