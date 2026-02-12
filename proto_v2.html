@@ -291,12 +291,11 @@
             let msg = document.getElementById('message-box');
             msg.innerText = "Unlocked: " + trophy.text;
             
-            setTimeout(function() {
+            setTimeout(function() { // Gets rid of trophy txt
                 msg.innerText = "";
             }, 3000);
         }
 
-        // Help Modal Logic
         function showHelp() {
             document.getElementById('help').style.display = 'flex';
         }
