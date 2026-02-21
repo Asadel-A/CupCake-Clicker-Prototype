@@ -274,7 +274,7 @@
         }
 
         function checkTrophies() {
-            trophyList.forEach(trophy => {
+            trophyList.forEach(trophy => { // essentially uses the arrow function & calls upon trophylist to check if user has certain trophies
                 if (!gameState.myTrophies.includes(trophy.id) && trophy.req(gameState)) {
                     unlockTrophy(trophy);
                 }
