@@ -1,0 +1,126 @@
+/*
+Name: Asadel Ali & Roshan Azeemi
+Date: Feb 05, 2026
+Description: This file contains the styling, layout flexboxes, and UI visual states for the Cupcake Clicker game.
+*/
+
+body {
+    font-family: sans-serif;
+    background-color: #ffebee; 
+    margin: 0;
+    overflow: hidden;
+}
+
+.game-layout {
+    display: flex; 
+    height: 100vh; 
+}
+
+#left-col {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; 
+    border-right: 5px solid #f48fb1;
+}
+
+#cupcake-btn {
+    font-size: 120px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.1s;
+}
+
+#cupcake-btn:active {
+    transform: scale(0.9);
+}
+
+#middle-col {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+.score-box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+#message-box {
+    height: 50px; 
+    color: #d81b60;
+    font-weight: bold;
+}
+
+#right-col {
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-left: 5px solid #f48fb1;
+    padding: 10px;
+    overflow-y: auto; 
+}
+
+.upgrade-btn {
+    background: white;
+    border: 2px solid #ec407a;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 90%;
+}
+
+.upgrade-btn:hover {
+    background-color: #fce4ec;
+}
+
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ddd;
+    border-color: #999;
+}
+
+#trophy-area {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.trophy {
+    font-size: 30px;
+    background-color: gold;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer; 
+    border: 2px solid orange;
+}
+
+#help {
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); 
+    display: none; 
+    justify-content: center;
+    align-items: center;
+}
+
+#help-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+}

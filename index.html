@@ -1,0 +1,58 @@
+<!--
+1 - Name - Asadel Ali & Roshan Azeemi
+2 - Creation - Feb 05
+3 - Description - This file is the basis HTML for the JS pair programming assignment, which includes
+the basic layout for things like the scoreboard, help button and the separate divs for the different sections.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Cupcake Clicker</title>
+    <link rel="stylesheet" href="style/style.css">
+</head>
+<body>
+
+    <div class="game-layout">
+        
+        <section id="left-col">
+            <h1>Cupcake Factory</h1>
+            <div id="cupcake-btn">🧁</div>
+        </section>
+
+        <section id="middle-col">
+            <div class="score-box">
+                <h2>Scoreboard</h2>
+                <p>Cupcakes: <span id="score-text">0</span></p>
+                <p>Cookies per Click: <span id="click-power-text">1</span></p>
+            </div>
+            
+            <div id="message-box"></div> 
+            <button id="open-help">Help</button>
+        </section>
+
+        <section id="right-col">
+            <h2>Store</h2>
+            <div id="store-container">
+                </div>
+
+            <h2>Trophies</h2>
+            <div id="trophy-area">
+                </div>
+        </section>
+
+    </div>
+
+    <div id="help">
+        <div id="help-content">
+            <h3>Help is Here!</h3>
+            <p>Click the cupcake to bake. Buy upgrades to bake faster.</p>
+            <p>It's as simple as that.</p>
+            <button id="close-help">I understand</button>
+        </div>
+    </div>
+
+    <script src="script/script.js"></script>
+</body>
+</html>
