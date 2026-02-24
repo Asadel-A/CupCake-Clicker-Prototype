@@ -16,19 +16,20 @@ let gameState = {
 let autoClickTimer = null; 
 
 const shopItems = [
-    { id: 'sprinkles', name: 'Sprinkles (+1 Click)', type: 'click', cost: 50, boost: 1 },
-    { id: 'cocoa', name: 'Cocoa (+5 Click)', type: 'click', cost: 200, boost: 5 },
-    { id: 'cream', name: 'Whipped Cream (+10 Click)', type: 'click', cost: 500, boost: 10 },
-    { id: 'eggs', name: 'Eggs (Auto 3 sec)', type: 'auto', cost: 100, delay: 3000 },
-    { id: 'vanilla', name: 'Vanilla (Auto 1 sec)', type: 'auto', cost: 1000, delay: 1000 },
-    { id: 'chocolate', name: 'Choco (Auto 0.1 sec)', type: 'auto', cost: 5000, delay: 100 }
+    {id: 'sprinkles', name: 'Sprinkles (+1 Click)', type: 'click', cost: 50, boost: 1 },
+    {id: 'cocoa', name: 'Cocoa (+5 Click)', type: 'click', cost: 200, boost: 5 },
+    {id: 'cream', name: 'Whipped Cream (+10 Click)', type: 'click', cost: 500, boost: 10 },
+    {id: 'sugar', name: 'Sugar (+100 Click)', type: 'click', cost: 2000, boost: 100 },
+    {id: 'eggs', name: 'Eggs (Auto 3 sec)', type: 'auto', cost: 100, delay: 3000 },
+    {id: 'vanilla', name: 'Vanilla (Auto 1 sec)', type: 'auto', cost: 1000, delay: 1000 },
+    {id: 'chocolate', name: 'Choco (Auto 0.1 sec)', type: 'auto', cost: 5000, delay: 100 }
 ];
 
 const trophyList = [
-    { id: 'first', text: 'CUPTASTIC: Clicked 1 time', icon: '👆', req: (g) => g.totalClicks >= 1 },
-    { id: 'dough', text: 'Making Dough: 50 Cupcakes', icon: '🥯', req: (g) => g.cupcakes >= 50 },
-    { id: 'cheat', text: 'Stop Cheating: Bought Auto Clicker', icon: '🥚', req: (g) => g.myUpgrades.includes('eggs') },
-    { id: 'oven', text: 'Fresh Oven: Bought Sprinkles', icon: '✨', req: (g) => g.myUpgrades.includes('sprinkles') }
+    {id: 'first', text: 'CUPTASTIC: Clicked 1 time', icon: '👆', req: (g) => g.totalClicks >= 1 },
+    {id: 'dough', text: 'Making Dough: 50 Cupcakes', icon: '🥯', req: (g) => g.cupcakes >= 50 },
+    {id: 'cheat', text: 'Stop Cheating: Bought Auto Clicker', icon: '🥚', req: (g) => g.myUpgrades.includes('eggs') },
+    {id: 'oven', text: 'Fresh Oven: Bought Sprinkles', icon: '✨', req: (g) => g.myUpgrades.includes('sprinkles') }
 ];
 
 window.addEventListener('load', function() {
