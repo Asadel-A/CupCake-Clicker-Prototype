@@ -26,10 +26,10 @@ const shopItems = [
 ];
 
 const trophyList = [
-    {id: 'first', text: 'CUPTASTIC: Clicked 1 time', icon: '👆', req: (g) => g.totalClicks >= 1 },
-    {id: 'dough', text: 'Making Dough: 50 Cupcakes', icon: '🥯', req: (g) => g.cupcakes >= 50 },
-    {id: 'cheat', text: 'Stop Cheating: Bought Auto Clicker', icon: '🥚', req: (g) => g.myUpgrades.includes('eggs') },
-    {id: 'oven', text: 'Fresh Oven: Bought Sprinkles', icon: '✨', req: (g) => g.myUpgrades.includes('sprinkles') }
+    { id: 'first', text: 'CUPTASTIC: Clicked 1 time', icon: '👆', req: (g) => g.totalClicks >= 1 },
+    { id: 'dough', text: 'Making Dough: 50 Cupcakes', icon: '🥯', req: (g) => g.cupcakes >= 50 },
+    { id: 'cheat', text: 'Stop Cheating: Bought Auto Clicker', icon: '🥚', req: (g) => g.myUpgrades.includes('eggs') },
+    { id: 'oven', text: 'Fresh Oven: Bought Sprinkles', icon: '✨', req: (g) => g.myUpgrades.includes('sprinkles') }
 ];
 
 window.addEventListener('load', function() {
@@ -41,8 +41,8 @@ window.addEventListener('load', function() {
 });
 
 /**
- * Handles the manual clicking of the main cupcake to increase resources.
- * * @returns {void} Returns nothing.
+ * What this does is handle the manual clicking the user will do.
+ * @returns  Returns nothing.
  */
 function clickCupcake() {
     gameState.cupcakes += gameState.clickValue; 
@@ -51,9 +51,9 @@ function clickCupcake() {
 }
 
 /**
- * Processes the purchase of an upgrade, applies its effects, and increases its future cost.
- * * @param {Object} item The specific upgrade object being purchased from the store.
- * @returns {void} Returns nothing.
+ * What this function does is process the purchase of an upgrade, applies its effects, and increases its future cost.
+ * @param {Object} item The specific upgrade object being purchased from the store.
+ * @returns Returns nothing.
  */
 function buyItem(item) {
     if (gameState.cupcakes >= item.cost) {
@@ -76,8 +76,8 @@ function buyItem(item) {
 
 /**
  * Starts or replaces the automatic clicking interval.
- * * @param {Number} delayTime The delay in milliseconds between automatic clicks.
- * @returns {void} Returns nothing.
+ * @param {Number} delayTime The delay in milliseconds between automatic clicks.
+ * @returns Returns nothing.
  */
 function startAutoClicker(delayTime) {
     if (autoClickTimer) {
@@ -93,8 +93,8 @@ function startAutoClicker(delayTime) {
 }
 
 /**
- * Updates the text values on the scoreboard based on the current game state.
- * * @returns {void} Returns nothing.
+ * This updates the text values on the scoreboard based on the current game status.
+ * @returns Returns nothing.
  */
 function updateScreen() {
     document.getElementById('score-text').innerText = gameState.cupcakes;
@@ -102,8 +102,8 @@ function updateScreen() {
 }
 
 /**
- * Runs periodically to continuously check for updates like unlocked trophies or affordable buttons.
- * * @returns {void} Returns nothing.
+ * Runs periodically to continuously check for updates like unlocked trophies or if there is an affordable button.
+ * @returns Returns nothing.
  */
 function updateGameLoop() {
     checkTrophies();
@@ -112,7 +112,7 @@ function updateGameLoop() {
 
 /**
  * Iterates through store buttons and visually disables or enables them based on current resources.
- * * @returns {void} Returns nothing.
+ * @returns Returns nothing.
  */
 function checkButtons() {
     shopItems.forEach(item => {
@@ -126,8 +126,8 @@ function checkButtons() {
 }
 
 /**
- * Dynamically generates the HTML elements for the store buttons.
- * * @returns {void} Returns nothing.
+ * Dynamically generates the HTML elements for the store buttons using innerHTML.
+ * @returns Returns nothing.
  */
 function createStoreButtons() {
     const container = document.getElementById('store-container');
@@ -146,8 +146,8 @@ function createStoreButtons() {
 }
 
 /**
- * Iterates through the trophy list to see if the user has met any new unlock conditions.
- * * @returns {void} Returns nothing.
+ * Goes through the trophy list to see if the user has met any new unlock conditions.
+ * @returns Returns nothing.
  */
 function checkTrophies() {
     trophyList.forEach(trophy => { 
@@ -158,9 +158,9 @@ function checkTrophies() {
 }
 
 /**
- * Records a new trophy as unlocked, displays it in the UI, and shows a temporary success message.
- * * @param {Object} trophy The specific trophy object that has been unlocked.
- * @returns {void} Returns nothing.
+ * Records a new trophy as unlocked, displays it in the user interface then shows a temporary success message.
+ * @param {Object} trophy The specific trophy object that has been unlocked.
+ * @returns Returns nothing.
  */
 function unlockTrophy(trophy) {
     gameState.myTrophies.push(trophy.id);
@@ -180,7 +180,7 @@ function unlockTrophy(trophy) {
 
 /**
  * Displays the help overlay to the user.
- * * @returns {void} Returns nothing.
+ * @returns Returns nothing.
  */
 function showHelp() {
     document.getElementById('help').style.display = 'flex';
@@ -188,7 +188,7 @@ function showHelp() {
 
 /**
  * Hides the help overlay from the user.
- * * @returns {void} Returns nothing.
+ * @returns Returns nothing.
  */
 function hideHelp() {
     document.getElementById('help').style.display = 'none';
